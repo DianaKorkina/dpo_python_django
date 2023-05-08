@@ -3,7 +3,7 @@ from django.db import models
 
 class Product(models.Model):
     class Meta:
-        ordering= ["name", "price"]
+        ordering = ["name", "price"]
         # db_table = "tech_products"
         # verbose_name_plural = "products"
 
@@ -18,6 +18,10 @@ class Product(models.Model):
         return f"Product(pk={self.pk}, name={self.name!r})"
 
 class Order(models.Model):
+    class Meta:
+        ordering = ["delivery_address", "promocode"]
+
+
     delivery_address = models.TextField(null=True, blank=True)
     promocode = models.CharField(max_length=20, null=False, blank=True)
     created_ad = models.DateTimeField(auto_now_add=True)
