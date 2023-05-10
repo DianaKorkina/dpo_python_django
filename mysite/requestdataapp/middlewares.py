@@ -29,7 +29,7 @@ class CountRequestMiddleware:
         ip_address = request.META.get('REMOTE_ADDR')
         if ip_address in self.request_history:
             last_request_time = self.request_history[ip_address]
-            if time.time() - last_request_time < 5:
+            if time.time() - last_request_time < 1:
                 return render(request, "requestdataapp/error-request.html")
         self.request_history[ip_address] = time.time()
         response = self.get_response(request)
