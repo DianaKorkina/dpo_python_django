@@ -6,6 +6,12 @@
 
 {% block body %}
   <h1>Create a new product</h1>
+  {% if perms.shopapp.add_product %}
+  <div>
+    <a href="{% url 'shopapp:product_create' %}"
+    >Create a new product</a>
+  </div>
+  {% endif %}
   <div>
     <form method="post">
       {% csrf_token %}
@@ -16,7 +22,7 @@
         Create
       </button>
     </form>
-    </div>
+  </div>
 
     <div>
       <a href="{% url 'shopapp:products_list' %}"
