@@ -2,9 +2,10 @@ from django.contrib.auth.decorators import login_required, permission_required, 
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.views import LogoutView
 from django.shortcuts import render, redirect, reverse
-from django.http import HttpResponse, HttpRequest
+from django.http import HttpResponse, HttpRequest, JsonResponse
 from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse_lazy
+from django.views import View
 from django.views.generic import TemplateView, CreateView
 
 from .models import Profile
@@ -77,3 +78,8 @@ def set_session_view(request: HttpRequest) -> HttpResponse:
 def get_session_view(request: HttpRequest) -> HttpResponse:
     value = request.session.get("foobar", "default")
     return HttpResponse(f"Session value: {value!r}")
+
+class FooBarView(View):
+    def get(self, request: HttpRequest) -> JsonResponse:
+        return JsonResponse({"foo": "bar", "span": "eggs"})
+
