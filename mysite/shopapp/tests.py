@@ -18,10 +18,12 @@ class AddTwoNumbersTestCase(TestCase):
 class ProductCreateViewTestCase(TestCase):
     @classmethod
     def setUpClass(cls):
+        super().setUpClass()
         cls.user = User.objects.create_superuser('username', 'Pas$w0rd')
 
     @classmethod
     def tearDownClass(cls):
+        super().tearDownClass()
         cls.user.delete()
 
     def setUp(self) -> None:
@@ -46,11 +48,13 @@ class ProductCreateViewTestCase(TestCase):
 class ProductDetailsViewTestCase(TestCase):
     @classmethod
     def setUpClass(cls):
+        super().setUpClass()
         user = User.objects.create_user(username="testuser", password="testpassword")
         cls.product = Product.objects.create(name="Best Product", created_by=user)
 
     @classmethod
     def tearDownClass(cls):
+        super().tearDownClass()
         cls.product.delete()
 
 
@@ -91,9 +95,11 @@ class ProductsListViewTestCase(TestCase):
 class OrdersListViewTestCase(TestCase):
     @classmethod
     def setUpClass(cls):
+        super().setUpClass()
         cls.user = User.objects.create_user(username="bob_test", password="Pas$w0rd")
     @classmethod
     def tearDownClass(cls):
+        super().tearDownClass()
         cls.user.delete()
 
     def setUp(self) -> None:
@@ -111,7 +117,9 @@ class OrdersListViewTestCase(TestCase):
 
 class ProductsExportViewTestCase(TestCase):
     fixtures = [
+        'users-fixture.json',
         'products-fixture.json',
+        'orders-fixture.json',
     ]
 
     def test_get_products_view(self):
@@ -137,12 +145,14 @@ class ProductsExportViewTestCase(TestCase):
 class OrderDetailViewTestCase(TestCase):
     @classmethod
     def setUpClass(cls):
+        super().setUpClass()
         cls.user = User.objects.create_user(username='testuser', password='testpassword')
         permission = Permission.objects.get(codename='view_order')
         cls.user.user_permissions.add(permission)
 
     @classmethod
     def tearDownClass(cls):
+        super().tearDownClass()
         cls.user.delete()
 
     def setUp(self):
@@ -169,12 +179,14 @@ class OrdersExportViewTestCase(TestCase):
     ]
     @classmethod
     def setUpClass(cls):
+        super().setUpClass()
         cls.user = User.objects.create_user(username='testuser', password='testpassword')
         permission = Permission.objects.get(codename='view_order')
         cls.user.user_permissions.add(permission)
 
     @classmethod
     def tearDownClass(cls):
+        super().tearDownClass()
         cls.user.delete()
 
     def setUp(self):
