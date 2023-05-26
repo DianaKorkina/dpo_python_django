@@ -6,13 +6,38 @@ from django.http import HttpResponse, HttpRequest, JsonResponse
 from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse_lazy
 from django.views import View
-from django.views.generic import TemplateView, CreateView
+from django.views.generic import TemplateView, CreateView, ListView, DetailView
 
+from .forms import ProfileUpdateForm
 from .models import Profile
 
 
 class AboutMeView(TemplateView):
     template_name = "myauth/about-me.html"
+
+
+class ProfilesListView(ListView):
+    template_name = "myauth/profiles_list.html"
+    model = Profile
+    context_object_name = "profiles"
+
+class ProfileDetailView(DetailView):
+    template_name = "myauth/about-me.html"
+    model = Profile
+    form_class = ProfileUpdateForm
+    context_object_name = "profile"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = ProfileUpdateForm(instance=self.object)
+        return context
+
+    def post(self, request, *args, **kwargs):
+        profile = self.get_object()
+        form = ProfileUpdateForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+        return self.render_to_response(self.get_context_data())
 
 class RegisterView(CreateView):
     form_class = UserCreationForm

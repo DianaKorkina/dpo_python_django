@@ -9,7 +9,7 @@ from django.views import View
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
 from .forms import ProductForm, OrderForm, GroupForm
-from .models import Product, Order
+from .models import Product, Order, ProductImage
 
 class ShopIndexView(View):
     def get(self, request: HttpRequest) -> HttpResponse:
@@ -40,7 +40,8 @@ class GroupListView(View):
 
 class ProductDetailsView(DetailView):
     template_name = 'shopapp/products-details.html'
-    model = Product
+    # model = Product
+    queryset = Product.objects.prefetch_related("images")
     context_object_name = "product"
 
 class ProductsListView(ListView):
@@ -53,8 +54,8 @@ class ProductCreateView(UserPassesTestMixin, CreateView):
     def test_func(self):
         return self.request.user.is_superuser or self.request.user.has_perm("shopapp.add_product")
     model = Product
-    fields = "name", "price", "description", "discount"
-    #form_class = ProductForm
+    # fields = "name", "price", "description", "discount", "preview"
+    form_class = ProductForm
     success_url = reverse_lazy("shopapp:products_list")
 
     def form_valid(self, form):
@@ -64,7 +65,8 @@ class ProductCreateView(UserPassesTestMixin, CreateView):
 class ProductUpdateView(UserPassesTestMixin, UpdateView):
 
     model = Product
-    fields = "name", "price", "description", "discount"
+    # fields = "name", "price", "description", "discount", "preview"
+    form_class = ProductForm
     template_name_suffix = "_update_form"
 
     def test_func(self):
@@ -80,6 +82,15 @@ class ProductUpdateView(UserPassesTestMixin, UpdateView):
             "shopapp:product_details",
             kwargs={"pk": self.object.pk},
         )
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        for image in form.files.getlist("images"):
+            ProductImage.objects.create(
+                product=self.object,
+                image=image,
+            )
+        return response
 
 class ProductDeleteView(DeleteView):
     model = Product
