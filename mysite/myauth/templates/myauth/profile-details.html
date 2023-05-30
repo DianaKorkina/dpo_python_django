@@ -1,0 +1,29 @@
+{% extends 'myauth/base.html' %}
+
+{% block title %}
+  User #{{ profile.pk }} details
+{% endblock %}
+
+{% block body %}
+  <h1>User info</h1>
+  <p>Username: {{ user.username }}</p>
+  <p>Bio: {{ user.profile.bio }}</p>
+
+  {% if profile.avatar %}
+    <img src="{{ profile.avatar.url }}" alt="Avatar">
+  {% endif %}
+
+  {% if user.is_staff or user.profile.user_id == profile.user_id %}
+    <h2>Update Avatar</h2>
+     <form method="post" enctype="multipart/form-data">
+       {% csrf_token %}
+       {{ form.as_p }}
+       <button type="submit">Update Avatar</button>
+     </form>
+  {% endif %}
+  <div>
+    <a href="{% url 'myauth:profiles_list' %}"
+    >Back to profiles list</a>
+  </div>
+
+{% endblock %}

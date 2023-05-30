@@ -2,8 +2,8 @@ from django.contrib.auth.models import User
 from django.db import models
 
 def upload_avatar_to(instance: "Profile", filename: str) -> str:
-    return "avatars/user_{user_id}/{filename}".format(
-        user_id=instance.user_id,
+    return "profiles/user_{pk}/avatar/{filename}".format(
+        pk=instance.pk,
         filename=filename,
     )
 

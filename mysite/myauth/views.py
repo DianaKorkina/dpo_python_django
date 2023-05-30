@@ -1,12 +1,13 @@
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.views import LogoutView
 from django.shortcuts import render, redirect, reverse
 from django.http import HttpResponse, HttpRequest, JsonResponse
 from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse_lazy
 from django.views import View
-from django.views.generic import TemplateView, CreateView, ListView, DetailView
+from django.views.generic import TemplateView, CreateView, ListView, DetailView, UpdateView
 
 from .forms import ProfileUpdateForm
 from .models import Profile
@@ -17,27 +18,31 @@ class AboutMeView(TemplateView):
 
 
 class ProfilesListView(ListView):
-    template_name = "myauth/profiles_list.html"
-    model = Profile
+    template_name = "myauth/profiles-list.html"
     context_object_name = "profiles"
+    queryset = Profile.objects.all()
 
 class ProfileDetailView(DetailView):
-    template_name = "myauth/about-me.html"
-    model = Profile
-    form_class = ProfileUpdateForm
+    template_name = "myauth/profile-details.html"
+    queryset = Profile.objects.all()
     context_object_name = "profile"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['form'] = ProfileUpdateForm(instance=self.object)
-        return context
+class ProfileUpdateView(UserPassesTestMixin, UpdateView):
+    model = Profile
+    template_name_suffix = '_update_form'
+    form_class = ProfileUpdateForm
 
-    def post(self, request, *args, **kwargs):
+    def test_func(self):
+        user = self.request.user
         profile = self.get_object()
-        form = ProfileUpdateForm(request.POST, request.FILES, instance=profile)
-        if form.is_valid():
-            form.save()
-        return self.render_to_response(self.get_context_data())
+        return user.is_staff or user.profile.user_id == profile.user_id
+
+    def get_success_url(self):
+        return reverse_lazy('myauth:profile_details', kwargs={'pk': self.object.pk})
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        return response
 
 class RegisterView(CreateView):
     form_class = UserCreationForm
