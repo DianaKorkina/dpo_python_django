@@ -20,11 +20,11 @@ class AboutMeView(TemplateView):
 class ProfilesListView(ListView):
     template_name = "myauth/profiles-list.html"
     context_object_name = "profiles"
-    queryset = Profile.objects.all()
+    model = Profile
 
 class ProfileDetailView(DetailView):
     template_name = "myauth/profile-details.html"
-    queryset = Profile.objects.all()
+    model = Profile
     context_object_name = "profile"
 
 class ProfileUpdateView(UserPassesTestMixin, UpdateView):

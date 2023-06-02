@@ -6,13 +6,13 @@
 
 {% block body %}
   <h1>Users:</h1>
-  {% if users.is_authenticated %}
+  {% if request.profile.is_authenticated %}
     <div>
-    {% for user in users %}
+    {% for profile in profiles %}
       <div>
-        <p><a href="{% url 'myauth:profile-details' pk=user.pk %}"
-        >Username: {{ user.username }}</a></p>
-        <p>Bio: {{ user.profile.bio }}</p>
+        <p><a href="{% url 'myauth:profile-details' pk=profile.pk %}"
+        >Username: {{ profile.username }}</a></p>
+        <p>Bio: {{ profile.bio }}</p>
 
         {% if profile.avatar %}
           <img src="{{ user.profile.avatar.url }}" alt="Avatar">
