@@ -6,21 +6,19 @@
 
 {% block body %}
   <h1>User info</h1>
-  <p>Username: {{ profile.username }}</p>
+  <p>Username: {{ profile.user.username }}</p>
   <p>Bio: {{ profile.bio }}</p>
 
   {% if profile.avatar %}
     <img src="{{ profile.avatar.url }}" alt="Avatar">
   {% endif %}
 
-  {% if user.is_staff or user.profile.user_id == profile.user_id %}
-    <h2>Update Avatar</h2>
-     <form method="post" enctype="multipart/form-data">
-       {% csrf_token %}
-       {{ form.as_p }}
-       <button type="submit">Update Avatar</button>
-     </form>
+  {% if profile.user.is_staff or profile.user.user_id == profile.user.user_id %}
+    <div>
+      <a href="{% url 'myauth:profile_update' pk=profile.pk %}">Update profile</a>
+    </div>
   {% endif %}
+
   <div>
     <a href="{% url 'myauth:profiles_list' %}"
     >Back to profiles list</a>

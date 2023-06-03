@@ -34,7 +34,7 @@ urlpatterns = [
 
     path("profiles-list/", ProfilesListView.as_view(), name="profiles_list"),
     path("profile-details/<int:pk>/", ProfileDetailView.as_view(), name="profile_details"),
-    path("profile-details/<int:pk>/update/", ProfileUpdateView.as_view(), name="profile_update"),
+    path("profile-update/<int:pk>/", ProfileUpdateView.as_view(), name="profile_update"),
 
     path("cookie/get/", get_cookie_view, name="cookie-get"),
     path("cookie/set/", set_cookie_view, name="cookie-set"),

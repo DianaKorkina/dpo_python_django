@@ -17,15 +17,18 @@ class AboutMeView(TemplateView):
     template_name = "myauth/about-me.html"
 
 
+
 class ProfilesListView(ListView):
     template_name = "myauth/profiles-list.html"
     context_object_name = "profiles"
     model = Profile
 
+
 class ProfileDetailView(DetailView):
     template_name = "myauth/profile-details.html"
     model = Profile
     context_object_name = "profile"
+
 
 class ProfileUpdateView(UserPassesTestMixin, UpdateView):
     model = Profile
@@ -38,7 +41,7 @@ class ProfileUpdateView(UserPassesTestMixin, UpdateView):
         return user.is_staff or user.profile.user_id == profile.user_id
 
     def get_success_url(self):
-        return reverse_lazy('myauth:profile_details', kwargs={'pk': self.object.pk})
+        return reverse_lazy('myauth:profile-details', kwargs={'pk': self.object.pk})
 
     def form_valid(self, form):
         response = super().form_valid(form)

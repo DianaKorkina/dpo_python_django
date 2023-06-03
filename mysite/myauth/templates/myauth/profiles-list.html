@@ -6,22 +6,22 @@
 
 {% block body %}
   <h1>Users:</h1>
-  {% if request.profile.is_authenticated %}
+  {% if profiles %}
     <div>
     {% for profile in profiles %}
       <div>
-        <p><a href="{% url 'myauth:profile-details' pk=profile.pk %}"
-        >Username: {{ profile.username }}</a></p>
+        <p><a href="{% url 'myauth:profile_details' pk=profile.pk %}"
+        >Username: {{ profile.user.username }}</a></p>
         <p>Bio: {{ profile.bio }}</p>
 
         {% if profile.avatar %}
-          <img src="{{ user.profile.avatar.url }}" alt="Avatar">
+          <img src="{{ profile.avatar.url }}" alt="Avatar">
         {% endif %}
       </div>
     {% endfor%}
     </div>
   {% else %}
     <p>No accounts yet</p>
+    <a href="{% url 'myauth:register' %}">Register new account</a>
   {% endif %}
-  <a href="{% url 'myauth:register' %}">Register new account</a>
 {% endblock %}
