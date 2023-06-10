@@ -1,3 +1,9 @@
+"""
+В этом модуле лежат различные наборы представлений.
+
+Разные view интернет-магазина: по товарам, заказам и т.д.
+"""
+
 from timeit import default_timer
 
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
@@ -10,13 +16,19 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.filters import SearchFilter, OrderingFilter
+from drf_spectacular.utils import extend_schema
 
 from .forms import ProductForm, OrderForm, GroupForm
 from .models import Product, Order, ProductImage
 from .serializers import ProductSerializer, OrderSerializer
 
 
+@extend_schema(description="Product views CRUD")
 class ProductViewSet(ModelViewSet):
+    """
+    Набор представлений для действий над Product
+    Полный CRUD для сущностей товара
+    """
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     filter_backends = [
