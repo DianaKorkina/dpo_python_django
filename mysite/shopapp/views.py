@@ -163,6 +163,7 @@ class OrdersListView(LoginRequiredMixin, ListView):
         Order.objects
         .select_related("user")
         .prefetch_related("products")
+        .all()
     )
 
 class OrderDetailView(PermissionRequiredMixin, DetailView):
