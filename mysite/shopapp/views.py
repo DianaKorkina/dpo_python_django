@@ -3,7 +3,7 @@
 
 Разные view интернет-магазина: по товарам, заказам и т.д.
 """
-
+import logging
 from timeit import default_timer
 
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
@@ -22,6 +22,7 @@ from .forms import ProductForm, OrderForm, GroupForm
 from .models import Product, Order, ProductImage
 from .serializers import ProductSerializer, OrderSerializer
 
+log = logging.getLogger(__name__)
 
 @extend_schema(description="Product views CRUD")
 class ProductViewSet(ModelViewSet):
@@ -78,6 +79,8 @@ class ShopIndexView(View):
             "products": products,
             "items": 1,
         }
+        log.debug("Products for shop index: %s", products)
+        log.info("Rendering shop index")
         return render(request, 'shopapp/shop-index.html', context=context)
 
 class GroupListView(View):
@@ -179,6 +182,11 @@ class OrderCreateView(CreateView):
     form_class = OrderForm
     success_url = reverse_lazy("shopapp:orders_list")
 
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        log.info("Оформление заказа: %s", self.object.pk)
+        return response
+
 class OrderUpdateView(UpdateView):
     model = Order
     form_class = OrderForm
@@ -210,6 +218,9 @@ class ProductsDataExportView(View):
             }
             for product in products
         ]
+        elem = products_data[0]
+        name = elem["name"]
+        print("name:", name)
         return JsonResponse({"products": products_data})
 
 class OrdersDataExportView(View):

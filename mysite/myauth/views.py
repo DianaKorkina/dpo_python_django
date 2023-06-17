@@ -1,3 +1,4 @@
+import logging
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -12,6 +13,8 @@ from django.utils.translation import gettext_lazy as _, ngettext
 
 from .forms import ProfileUpdateForm
 from .models import Profile
+
+logger = logging.getLogger(__name__)
 
 class HelloView(View):
     welcome_message = _("Hello world!")
@@ -96,6 +99,7 @@ def login_view(request: HttpRequest) -> HttpResponse:
     user = authenticate(request, username=username, password=password)
     if user is not None:
         login(request, user)
+        logger.info("User logged in: %s", user.username)
         return redirect("/admin/")
 
     return render(request, "myauth/login.html", {"error": "Invalid login credentials"})
@@ -112,6 +116,7 @@ class MyLogoutView(LogoutView):
 def set_cookie_view(request: HttpRequest) -> HttpResponse:
     response = HttpResponse("Cookie set")
     response.set_cookie("fizz", "buzz", max_age=3600)
+    logger.info("Cookie set for user: %s", request.user.username)
     return response
 
 def get_cookie_view(request: HttpRequest) -> HttpResponse:
@@ -121,6 +126,7 @@ def get_cookie_view(request: HttpRequest) -> HttpResponse:
 @permission_required("myauth:view_profile", raise_exception=True)
 def set_session_view(request: HttpRequest) -> HttpResponse:
     request.session["foobar"] = "spameggs"
+    logger.info("Session set for user: %s", request.user.username)
     return HttpResponse("Session set")
 
 @login_required
