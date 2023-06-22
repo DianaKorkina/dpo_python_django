@@ -1,24 +1,30 @@
 {% extends 'blogapp/base.html' %}
 
 {% block title %}
-  Article List
+  Articles
 {% endblock %}
 
 {% block body %}
-  <h1>Article List</h1>
+  <h1>Articles</h1>
+  {% if object_list %}
     <div>
-        {% for article in object_list %}
-          <div>
-            <h2>{{ article.title }}</h2>
-            <p>Date: {{ article.pub_date }}</p>
-            <p>Author: {{ article.author.name }}</p>
-            <p>Category: {{ article.category.name }}</p>
-            <p>Tags:
-              {% for tag in article.tags.all %}
-                {{ tag.name }}
-              {% endfor %}
-            </p>
-          </div>
-        {% endfor %}
+      {% for article in object_list %}
+        <div>
+          <p>
+            <a href="{% url 'blogapp:article' pk=article.pk %}">{{ article.title }}</a>
+          </p>
+          <p>Date: {{ article.pub_date }}</p>
+<!--          <p>Author: {{ article.author.name }}</p>-->
+<!--          <p>Category: {{ article.category.name }}</p>-->
+<!--          <p>Tags:-->
+<!--            {% for tag in article.tags.all %}-->
+<!--              {{ tag.name }}-->
+<!--            {% endfor %}-->
+<!--          </p>-->
+        </div>
+      {% endfor %}
     </div>
+  {% else %}
+    <h3>No published articles yet</h3>
+  {% endif %}
 {% endblock %}
