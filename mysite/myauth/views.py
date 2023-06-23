@@ -1,4 +1,6 @@
 import logging
+from random import random
+
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -10,6 +12,7 @@ from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import TemplateView, CreateView, ListView, DetailView, UpdateView
 from django.utils.translation import gettext_lazy as _, ngettext
+from django.views.decorators.cache import cache_page
 
 from .forms import ProfileUpdateForm
 from .models import Profile
@@ -119,9 +122,10 @@ def set_cookie_view(request: HttpRequest) -> HttpResponse:
     logger.info("Cookie set for user: %s", request.user.username)
     return response
 
+@cache_page(60 * 2)
 def get_cookie_view(request: HttpRequest) -> HttpResponse:
     value = request.COOKIES.get("fizz", "default value")
-    return HttpResponse(f"Cookie value: {value!r}")
+    return HttpResponse(f"Cookie value: {value!r} + {random()}")
 
 @permission_required("myauth:view_profile", raise_exception=True)
 def set_session_view(request: HttpRequest) -> HttpResponse:

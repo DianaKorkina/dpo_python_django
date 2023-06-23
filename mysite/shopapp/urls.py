@@ -1,5 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+from django.views.decorators.cache import cache_page
 from .views import (
     ShopIndexView,
     GroupListView,
@@ -17,6 +18,8 @@ from .views import (
     OrdersDataExportView,
     ProductViewSet,
     OrderViewSet,
+    UserOrdersListView,
+    export_user_orders,
 )
 
 
@@ -42,4 +45,6 @@ urlpatterns = [
     path("orders/create/", OrderCreateView.as_view(), name="order_create"),
     path("orders/<int:pk>/update/", OrderUpdateView.as_view(), name="order_update"),
     path("products/<int:pk>/delete/", OrderDeleteView.as_view(), name="order_delete"),
+    path('users/<int:user_id>/orders/', UserOrdersListView.as_view(), name='user_orders'),
+    path('users/<int:user_id>/orders/export/', export_user_orders, name='export_user_orders'),
 ]

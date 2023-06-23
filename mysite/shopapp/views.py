@@ -9,12 +9,15 @@ from timeit import default_timer
 
 from django.contrib.syndication.views import Feed
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, User
 from django.http import HttpResponse, HttpRequest, HttpResponseRedirect, JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse, reverse_lazy
+from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.cache import cache_page
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.core.cache import cache
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import action
 from rest_framework.viewsets import ModelViewSet
@@ -28,6 +31,7 @@ from .common import save_csv_products
 from .forms import ProductForm, OrderForm, GroupForm
 from .models import Product, Order, ProductImage
 from .serializers import ProductSerializer, OrderSerializer
+
 
 log = logging.getLogger(__name__)
 
@@ -72,7 +76,10 @@ class ProductViewSet(ModelViewSet):
         "price",
         "discount",
     ]
-
+    @method_decorator(cache_page(60 * 2))
+    def list(self, *args, **kwargs):
+        # print("hello products list")
+        return super().list(*args, **kwargs)
     @action(methods=["get"], detail=False)
     def download_csv(self, request: Request):
         response = HttpResponse(content_type="text/csv")
@@ -125,6 +132,7 @@ class OrderViewSet(ModelViewSet):
     ]
 
 class ShopIndexView(View):
+    # @method_decorator(cache_page(60 * 2))
     def get(self, request: HttpRequest) -> HttpResponse:
         products = [
             ('Laptop', 1999),
@@ -136,6 +144,7 @@ class ShopIndexView(View):
             "products": products,
             "items": 1,
         }
+        print("shop index context", context)
         log.debug("Products for shop index: %s", products)
         log.info("Rendering shop index")
         return render(request, 'shopapp/shop-index.html', context=context)
@@ -294,3 +303,39 @@ class OrdersDataExportView(View):
             for order in orders
         ]
         return JsonResponse({"orders": orders_data})
+
+class UserOrdersListView(LoginRequiredMixin, ListView):
+    model = Order
+    template_name = 'shopapp/user_orders_list.html'
+    context_object_name = 'orders'
+    paginate_by = 10
+
+    def get_queryset(self):
+        user_id = self.kwargs['user_id']
+        user = get_object_or_404(User, id=user_id)
+        self.owner = user
+        return Order.objects.filter(user=user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['owner'] = self.owner
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy('user_orders', kwargs={'user_id': self.owner.id})
+
+def export_user_orders(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    cache_key = f"user_orders_export_{user_id}"
+    cached_data = cache.get(cache_key)
+
+    if cached_data:
+        return JsonResponse(cached_data)
+
+    orders = Order.objects.filter(user=user).order_by('pk')
+    serializer = OrderSerializer(orders, many=True)
+    serialized_data = serializer.data
+
+    cache.set(cache_key, serialized_data)
+
+    return JsonResponse(serialized_data, safe=False)
