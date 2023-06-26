@@ -9,6 +9,7 @@ docutils==0.20.1
 drf-spectacular==0.26.2
 flake8==6.0.0
 flake8-docstrings==1.7.0
+gunicorn==20.1.0
 inflection==0.5.1
 jsonschema==4.17.3
 mccabe==0.7.0
